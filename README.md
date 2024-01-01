@@ -1,5 +1,6 @@
 
 Project to storage your ideas/notes build with vue.js.
+Download vue.js to check results. Whole tutorial here --> https://vuejs.org/guide/quick-start.html
 
 #  Vue-project
 
