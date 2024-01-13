@@ -1,10 +1,25 @@
 <script setup>
     import {ref} from "vue";
     import { useDateFormat, useNow, formatDate} from "@vueuse/core"
+    import  {useToast} from "vue-toastification"
+
+    const toast = useToast()
+   
+//Local storage
+  const onMounted = () => {
+  const myLocalStorage = JSON.parse(localStorage.getItem
+  ("notes"))
+
+  if(myLocalStorage){
+    notes.value = myLocalStorage
+  }
+}
 
     const showModal = ref(false)
+    const showReWriteModal = ref(false)
 
     const newNote = ref("")
+    const errorMessage = ref("")
     const notes = ref([])
 
     function getRandomColor(){
@@ -13,34 +28,82 @@
     }
 
     const addNote = () => {
+        if(newNote.value.length < 10){
+            return errorMessage.value = "Note needs to be 10 characters or more"
+        }
+            
         notes.value.push({
             id: Math.floor(Math.random() * 1000),
             text: newNote.value,
-            date: ref(useDateFormat(useNow(), "H:m dddd D MMMM YYYY")),
-            backgroundColor: getRandomColor()
+            date: useDateFormat(new Date(), "H:m dddd D MMMM YYYY"),
+            backgroundColor: getRandomColor(),
         })
         showModal.value = false;
         newNote.value = ""
+        errorMessage.value == String
+
+        toast.success("Note Added")
+
+        saveMyLocalStorage()
+        }
+    /*function reWriteNote (id, note) {
+        console.log(id)
+        const newReNote = notes.value[id, "text"]
+        console.log(newReNote)
+        console.log(note.text)
+    }*/
+
+    const deleteNote = (id) => {
+        console.log("get id:",{id})
+        //notes.value.splice(id)
+        toast.error("Note deleted")
+        
+        notes.value = notes.value.filter(
+        (note) => note.id !== id)
+        
+        saveMyLocalStorage()
     }
-//.toLoaleDateString("") 
+    
+//Save to local storage
+    const saveMyLocalStorage = () => {
+        localStorage.setItem("notes", JSON.stringify(notes.value))
+    }
+
+    onMounted()
 </script> 
 
 <template>
     <main>
         <div v-show="showModal" class="overlay">
             <div class="modal">
-                <textarea v-model="newNote" name="note" id="note" cols="33" rows="13"></textarea>
+                <textarea v-model.trim="newNote" name="note" id="note" cols="33" rows="13"></textarea>
+                <p v-if="errorMessage">{{ errorMessage }}</p>
                 <button @click="addNote">Add Note</button>
                 <button class="close" @click="showModal = !showModal">Close</button>
             </div>
         </div>
+        <!--<div v-show="showReWriteModal" class="overlay">
+            <div class="modal">
+                {{ newNote }}
+                <textarea v-model.trim="notes.text" name="note" id="note" cols="33" rows="13"></textarea>
+                <p v-if="errorMessage">{{ errorMessage }}</p>
+                <button @click="reWriteNote(index)">Change text</button>
+                <button class="close" @click="showReWriteModal = !showReWriteModal">Close</button>
+            </div>
+        </div>-->
         <div class="container">
             <header>
                 <h1>Notes</h1>
                 <button @click="showModal = true">+</button>
             </header>
             <div class="card-container">
-                <div v-for="note in notes" class="card" :style="{backgroundColor: note.backgroundColor}">
+                <div
+                    @click="showReWriteModal = !showReWriteModal"  
+                    v-for="note in notes"
+                    :key="note.id"
+                    class="card" 
+                    :style="{backgroundColor: note.backgroundColor}">
+                     <img @click="deleteNote(note.id)" src="./components/icons/trashcan-icon2.png" class="trash">
                      <p class="main-text">{{note.text}}</p>
                      <p class="date">{{ note.date}}</p>
                 </div>
@@ -106,6 +169,9 @@ body{
         margin-top: 7px;
 
     }
+    .modal p{
+        color: red;
+    }
     .container{
         max-width: 100vw;
         padding: 10px;
@@ -139,8 +205,8 @@ body{
         align-items: center;
     }
     .card{
-        width: 200px;
-        height: 200px;
+        min-width: 200px;
+        min-height: 200px;
         background-color: orange;
         padding: 10px;
         border-radius: 15px;
@@ -150,17 +216,28 @@ body{
         margin-right: 20px;
         margin-bottom: 20px;
     }
+    .trash{
+        display: flex;
+        align-self: flex-end;
+        padding: 8px;
+        padding-right: 5px;
+        height: 30px;
+        width: 30px;
+    }
     .date{
         font-size: 11px;
         font-weight: bold;
     }
     .main-text{
-        text-wrap: wrap;
+        word-wrap: break-word;
+        padding: 4px;
+        width: 170px;
+        height: 180px;
     }
     .card-container{
-        width: 60vh;
+        width: 100vh;
         display: flex;
         flex-direction: row;
-        text-wrap: wrap;
+        flex-wrap: wrap;
     }
 </style>
