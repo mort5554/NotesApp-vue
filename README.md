@@ -1,6 +1,6 @@
 
 Project to storage your ideas/notes build with vue.js.
-Download vue.js to check results. Whole tutorial here --> https://vuejs.org/guide/quick-start.html
+Check results --> https://mort5554.github.io/NotesApp-vue/
 
 #  Vue-project
 
