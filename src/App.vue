@@ -21,10 +21,10 @@
     const newNote = ref("")
     const errorMessage = ref("")
     const notes = ref([])
+    const reWriteText = ref("")
 
     function getRandomColor(){
         return "hsl(" + Math.random() * 360 +", 100%, 75%)";
-        return color
     }
 
     const addNote = () => {
@@ -45,13 +45,34 @@
         toast.success("Note Added")
 
         saveMyLocalStorage()
+    }
+    const reWriteNote = (newText, id) => {
+        console.log(newText)
+        console.log(index)
+        console.log(reWriteText.value)
+        return reWriteText.value = ref(newText)
+        //console.log(notes.value[id])
+       // return newText = text
+    }
+    const changeText = (id) => {
+        if(reWriteText.value.length < 10){
+            return errorMessage.value = "Note needs to be 10 characters or more"
         }
-    /*function reWriteNote (id, note) {
-        console.log(id)
-        const newReNote = notes.value[id, "text"]
-        console.log(newReNote)
-        console.log(note.text)
-    }*/
+            
+        notes.value.push({
+            id: id,
+            text: reWriteText.value,
+            date: useDateFormat(new Date(), "H:m dddd D MMMM YYYY"),
+            backgroundColor: getRandomColor(),
+        })
+        showReWriteModal.value = false;
+        reWriteText.value = ""
+        errorMessage.value == String
+
+        toast.success("Note changed")
+
+        saveMyLocalStorage()
+    }
 
     const deleteNote = (id) => {
         console.log("get id:",{id})
@@ -82,29 +103,28 @@
                 <button class="close" @click="showModal = !showModal">Close</button>
             </div>
         </div>
-        <!--<div v-show="showReWriteModal" class="overlay">
+        <div v-show="showReWriteModal" class="overlay">
             <div class="modal">
-                {{ newNote }}
-                <textarea v-model.trim="notes.text" name="note" id="note" cols="33" rows="13"></textarea>
+                <textarea v-model.trim="reWriteText.value" name="note" id="note" cols="33" rows="13"></textarea>
                 <p v-if="errorMessage">{{ errorMessage }}</p>
-                <button @click="reWriteNote(index)">Change text</button>
+                <button @click="changeText()">Change text</button>
                 <button class="close" @click="showReWriteModal = !showReWriteModal">Close</button>
             </div>
-        </div>-->
+        </div>-
         <div class="container">
             <header>
                 <h1>Notes</h1>
                 <button @click="showModal = true">+</button>
             </header>
             <div class="card-container">
-                <div
-                    @click="showReWriteModal = !showReWriteModal"  
+                <div  
                     v-for="note in notes"
                     :key="note.id"
                     class="card" 
                     :style="{backgroundColor: note.backgroundColor}">
                      <img @click="deleteNote(note.id)" src="./components/icons/trashcan-icon2.png" class="trash">
-                     <p class="main-text">{{note.text}}</p>
+                     <p @click="showReWriteModal = !showReWriteModal, reWriteNote(note.text, note.id)" 
+                     class="main-text">{{note.text}}</p>
                      <p class="date">{{ note.date}}</p>
                 </div>
             </div>
@@ -131,8 +151,8 @@ body{
         background-color: aliceblue;
     }
     .modal{
-        width: 350px;
-        height: 350px;
+        width: 380px;
+        height: 380px;
         background-color: white;
         border-radius: 10px;
         padding: 30px;
@@ -142,6 +162,15 @@ body{
         justify-content: center;
         flex-direction: column;
         margin-bottom: 10px;
+        animation: slideFromDown 0.5s ease-in-out;
+    }
+    @keyframes slideFromDown{
+        from{
+            transform: translateY(110%);
+        }
+        to{
+            transform: translateY(0%);
+        }
     }
     .overlay{
         position: absolute;
